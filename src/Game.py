@@ -11,13 +11,11 @@ import sys
 import os
 import pygame
 from typing import List, Tuple
-from Deck import Deck  # Assuming Deck.py is in the same directory
-from Card import Card, Suit, Value  # Assuming Card.py is in the same directory
+from Deck import Deck  
+from Card import Card, Suit, Value 
 
-# Add this to ensure the Poker module is accessible
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import Player from the Poker package
 from Player import Player
 
 class PokerGame:
@@ -40,32 +38,74 @@ class PokerGame:
             self.community_cards.append(self.deck.deal())
 
     def collect_bets(self):
-        print("Collecting bets...")
-        self.highest_bet = 0
+        print("\nCollecting bets...\n")
         active_players = [p for p in self.players if not p.fold]
-        
+        self.highest_bet = 0
+        self.minimum_raise = 0
         for player in active_players:
-            if player.fold:
-                continue
-            action = input(f"{player.name}, your action (check/call/raise/fold/all-in): ").lower()
-            if action == "fold":
-                player.fold_hand()
-            elif action == "check":
-                if self.highest_bet == 0:
-                    player.check()
-                else:
-                    print("You can't check, there's a bet to call.")
-            elif action == "call":
-                self.pot += player.call(self.highest_bet)
-            elif action == "raise":
-                raise_amount = int(input("Enter raise amount: "))
-                self.pot += player.raise_bet(raise_amount, self.highest_bet)
-                self.highest_bet += raise_amount
-            elif action == "all-in":
-                self.pot += player.all_in()
-                if player.current_bet > self.highest_bet:
-                    self.highest_bet = player.current_bet
-            print(f"{player.name} has {player.chips} chips left and has bet {player.current_bet} in this round.")
+            player.current_bet = 0
+
+        first_bet = True
+        while True:
+            all_acted = True
+            for player in active_players:
+                if player.fold:
+                    continue
+
+                if player.current_bet == self.highest_bet and not first_bet:
+                    continue
+
+                print(f"{player.name}, you have {player.chips} chips.")
+                action = input(f"{player.name}, your action (check/call/raise/fold/all-in): ").lower()
+                if action == "fold":
+                    player.fold_hand()
+                    active_players = [p for p in self.players if not p.fold]
+                    if len(active_players) == 1:
+                        winner = active_players[0]
+                        print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
+                        winner.chips += self.pot
+                        return True  # End the betting round and the game
+                elif action == "check":
+                    if self.highest_bet == 0:
+                        player.check()
+                    else:
+                        print("You can't check, there's a bet to call.")
+                        all_acted = False
+                        continue
+                elif action == "call":
+                    if player.current_bet < self.highest_bet:
+                        self.pot += player.call(self.highest_bet)
+                    else:
+                        print("You have already matched the highest bet.")
+                elif action == "raise":
+                    raise_amount = int(input("Enter raise amount: "))
+                    if raise_amount < max(self.minimum_raise, self.highest_bet * 2):
+                        print(f"The raise amount must be at least twice the previous bet of {self.highest_bet}.")
+                        all_acted = False
+                        continue
+                    if raise_amount <= player.chips:
+                        self.pot += raise_amount - player.current_bet  # Only add the difference to the pot
+                        player.current_bet = raise_amount
+                        self.highest_bet = raise_amount
+                        self.minimum_raise = raise_amount
+                        all_acted = False  # Since a raise occurred, set all_acted to False
+                    else:
+                        print("You don't have enough chips to raise that amount.")
+                        all_acted = False
+                        continue
+                elif action == "all-in":
+                    self.pot += player.all_in()
+                    if player.current_bet > self.highest_bet:
+                        self.highest_bet = player.current_bet
+                    all_acted = False  # Since an all-in occurred, set all_acted to False
+
+                print(f"{player.name} has {player.chips} chips left and has bet {player.current_bet} in this round.")
+
+            if all_acted:
+                break
+            first_bet = False
+
+        return False  # Betting round did not end the game
 
     def play_round(self):
         self.deck = Deck()  # Reset and shuffle the deck
@@ -74,27 +114,35 @@ class PokerGame:
         self.highest_bet = 0
 
         self.deal_cards()
-        print(f"Player 1 hand: {self.players[0].hand}")
-        print(f"Player 2 hand: {self.players[1].hand}")
-        
-        self.collect_bets()
+        print(f"\n{self.players[0].name} hand: {self.players[0].hand}")
+        print(f"{self.players[1].name} hand: {self.players[1].hand}")
+
+        if self.collect_bets():
+            return
+
         self.deal_community_cards(3)  # Flop
-        print(f"Flop: {self.community_cards}")
+        print(f"\nFlop: {self.community_cards}\n")
 
-        self.collect_bets()
+        if self.collect_bets():
+            return
+
         self.deal_community_cards(1)  # Turn
-        print(f"Turn: {self.community_cards}")
+        print(f"\nTurn: {self.community_cards}\n")
 
-        self.collect_bets()
+        if self.collect_bets():
+            return
+
         self.deal_community_cards(1)  # River
-        print(f"River: {self.community_cards}")
+        print(f"\nRiver: {self.community_cards}\n")
 
-        self.collect_bets()
+        if self.collect_bets():
+            return
+
         self.showdown()
     
     def showdown(self):
         # Simple winner determination placeholder
-        print("Showdown!")
+        print("\nShowdown!")
         player1_best_hand, player1_hand_type = self.evaluate_hand(self.players[0].hand + self.community_cards)
         player2_best_hand, player2_hand_type = self.evaluate_hand(self.players[1].hand + self.community_cards)
 
@@ -102,13 +150,13 @@ class PokerGame:
         print(f"{self.players[1].name}'s best hand: {player2_best_hand} ({player2_hand_type})")
 
         if player1_best_hand > player2_best_hand:
-            print(f"{self.players[0].name} wins the pot of {self.pot} chips!")
+            print(f"\n{self.players[0].name} wins the pot of {self.pot} chips!\n")
             self.players[0].chips += self.pot
         elif player2_best_hand > player1_best_hand:
-            print(f"{self.players[1].name} wins the pot of {self.pot} chips!")
+            print(f"\n{self.players[1].name} wins the pot of {self.pot} chips!\n")
             self.players[1].chips += self.pot
         else:
-            print("It's a tie!")
+            print("\nIt's a tie!")
             split_pot = self.pot // 2
             self.players[0].chips += split_pot
             self.players[1].chips += split_pot
@@ -170,8 +218,8 @@ def main():
     
     # pygame.quit()
     # sys.exit()
-    player1 = Player("Alice", 100)
-    player2 = Player("Bob", 100)
+    player1 = Player("Alice", 10000)
+    player2 = Player("Bob", 10000)
     game = PokerGame([player1, player2])
     game.play_round()   
 
