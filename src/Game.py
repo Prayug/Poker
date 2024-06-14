@@ -2,9 +2,6 @@
 # GUI stuff
 # Multiplayer
 # AI players
-# An actual betting system
-
-
 
 from itertools import combinations
 import sys
@@ -41,7 +38,7 @@ class PokerGame:
         print("\nCollecting bets...\n")
         active_players = [p for p in self.players if not p.fold]
         self.highest_bet = 0
-        self.minimum_raise = 0
+
         for player in active_players:
             player.current_bet = 0
 
@@ -64,7 +61,7 @@ class PokerGame:
                         winner = active_players[0]
                         print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
                         winner.chips += self.pot
-                        return True  # End the betting round and the game
+                        return True
                 elif action == "check":
                     if self.highest_bet == 0:
                         player.check()
@@ -74,38 +71,43 @@ class PokerGame:
                         continue
                 elif action == "call":
                     if player.current_bet < self.highest_bet:
-                        self.pot += player.call(self.highest_bet)
+                        bet_amount = player.call(self.highest_bet)
+                        self.pot += bet_amount
+                        print(f"{player.name} calls with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
                     else:
                         print("You have already matched the highest bet.")
                 elif action == "raise":
                     raise_amount = int(input("Enter raise amount: "))
-                    if raise_amount < max(self.minimum_raise, self.highest_bet * 2):
-                        print(f"The raise amount must be at least twice the previous bet of {self.highest_bet}.")
+                    if raise_amount < self.highest_bet * 2:
+                        print("You must raise at least 2 times the last raise.")
                         all_acted = False
                         continue
+
                     if raise_amount <= player.chips:
-                        self.pot += raise_amount - player.current_bet  # Only add the difference to the pot
-                        player.current_bet = raise_amount
-                        self.highest_bet = raise_amount
-                        self.minimum_raise = raise_amount
-                        all_acted = False  # Since a raise occurred, set all_acted to False
+                        bet_amount = player.call(raise_amount)
+                        self.pot += bet_amount
+                        self.highest_bet = player.current_bet
+                        print(f"{player.name} raises to {raise_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
+                        all_acted = False
                     else:
                         print("You don't have enough chips to raise that amount.")
                         all_acted = False
                         continue
                 elif action == "all-in":
-                    self.pot += player.all_in()
+                    bet_amount = player.all_in()
+                    self.pot += bet_amount
                     if player.current_bet > self.highest_bet:
                         self.highest_bet = player.current_bet
-                    all_acted = False  # Since an all-in occurred, set all_acted to False
+                    print(f"{player.name} goes all-in with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
+                    all_acted = False
 
-                print(f"{player.name} has {player.chips} chips left and has bet {player.current_bet} in this round.")
+                print(f"{player.name} has bet {player.current_bet} in this round.")
 
             if all_acted:
                 break
             first_bet = False
 
-        return False  # Betting round did not end the game
+        return False
 
     def play_round(self):
         self.deck = Deck()  # Reset and shuffle the deck
@@ -114,8 +116,8 @@ class PokerGame:
         self.highest_bet = 0
 
         self.deal_cards()
-        print(f"\n{self.players[0].name} hand: {self.players[0].hand}")
-        print(f"{self.players[1].name} hand: {self.players[1].hand}")
+        for player in self.players:
+            print(f"\n{player.name} hand: {player.hand}")
 
         if self.collect_bets():
             return
