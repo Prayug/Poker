@@ -1,31 +1,64 @@
 async function dealCards() {
-    let response = await eel.deal_cards()();
-    updateUI(response);
+    try {
+        let response = await eel.deal_cards()();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function collectBets() {
-    let response = await eel.collect_bets()();
-    updateUI(response);
+    try {
+        let response = await eel.collect_bets()();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function dealFlop() {
-    let response = await eel.deal_community_cards(3)();
-    updateUI(response);
+    try {
+        let response = await eel.deal_community_cards(3)();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function dealTurn() {
-    let response = await eel.deal_community_cards(1)();
-    updateUI(response);
+    try {
+        let response = await eel.deal_community_cards(1)();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function dealRiver() {
-    let response = await eel.deal_community_cards(1)();
-    updateUI(response);
+    try {
+        let response = await eel.deal_community_cards(1)();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function showdown() {
-    let response = await eel.showdown()();
-    updateUI(response);
+    try {
+        let response = await eel.showdown()();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function playNextRound() {
+    try {
+        let response = await eel.play_next_round()();
+        updateUI(response);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 function updateUI(response) {
@@ -37,6 +70,11 @@ function updateUI(response) {
     document.getElementById("player2-chips").innerText = response.player2.chips;
     document.getElementById("player2-hand").innerText = response.player2.hand.join(", ");
 
-    document.getElementById("cards").innerText = response.community_cards.join(", ");
+    updateCommunityCards(response);
     document.getElementById("log-text").innerText = response.log.join("\n");
+}
+
+function updateCommunityCards(response) {
+    let communityCards = response.community_cards.map(card => `<div class="card">${card}</div>`).join("");
+    document.getElementById("cards").innerHTML = communityCards;
 }

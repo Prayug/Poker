@@ -4,7 +4,6 @@ import eel
 # from src.Card import Card
 from Player import Player
 from Game import PokerGame
-from Card import Card
 
 # Initialize Eel
 eel.init('web')
@@ -33,6 +32,11 @@ def deal_community_cards(number):
 @eel.expose
 def showdown():
     game.showdown()
+    return get_game_state()
+
+@eel.expose
+def play_next_round():
+    game.play_round()
     return get_game_state()
 
 def get_game_state():

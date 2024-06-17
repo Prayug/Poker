@@ -23,6 +23,18 @@ class PokerGame:
         self.pot = 0
         self.highest_bet = 0
 
+    def reset_game(self):
+        self.deck = Deck()
+        self.community_cards = []
+        self.pot = 0
+        self.highest_bet = 0
+        self.flop_dealt = False
+        self.turn_dealt = False
+        self.river_dealt = False
+        for player in self.players:
+            player.reset_hand()
+        self.log = []
+
     def deal_cards(self):
         for player in self.players:
             player.setCards(self.deck.deal())
@@ -34,7 +46,6 @@ class PokerGame:
             self.community_cards.append(self.deck.deal())
 
     def collect_bets(self):
-        eel.collecting_bets()()
         active_players = [p for p in self.players if not p.fold]
         self.highest_bet = 0
 
@@ -113,6 +124,8 @@ class PokerGame:
         self.community_cards = []
         self.pot = 0
         self.highest_bet = 0
+        for player in self.players:
+            player.reset_hand()
 
         self.deal_cards()
         for player in self.players:
