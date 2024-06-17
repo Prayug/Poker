@@ -16,6 +16,7 @@ game = PokerGame([player1, player2])
 
 @eel.expose
 def deal_cards():
+    print("hello")
     game.deal_cards()
     return get_game_state()
 
