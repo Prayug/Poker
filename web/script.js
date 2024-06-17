@@ -17,6 +17,7 @@ async function collectBets() {
 }
 
 async function dealFlop() {
+    disableButton("flop-button");
     try {
         let response = await eel.deal_community_cards(3)();
         updateUI(response);
@@ -26,6 +27,7 @@ async function dealFlop() {
 }
 
 async function dealTurn() {
+    disableButton("turn-button");
     try {
         let response = await eel.deal_community_cards(1)();
         updateUI(response);
@@ -35,6 +37,7 @@ async function dealTurn() {
 }
 
 async function dealRiver() {
+    disableButton("river-button");
     try {
         let response = await eel.deal_community_cards(1)();
         updateUI(response);
@@ -53,6 +56,9 @@ async function showdown() {
 }
 
 async function playNextRound() {
+    enableButton("flop-button");
+    enableButton("turn-button");
+    enableButton("river-button");
     try {
         let response = await eel.play_next_round()();
         updateUI(response);
@@ -71,10 +77,17 @@ function updateUI(response) {
     document.getElementById("player2-hand").innerText = response.player2.hand.join(", ");
 
     updateCommunityCards(response);
-    document.getElementById("log-text").innerText = response.log.join("\n");
 }
 
 function updateCommunityCards(response) {
     let communityCards = response.community_cards.map(card => `<div class="card">${card}</div>`).join("");
     document.getElementById("cards").innerHTML = communityCards;
+}
+
+function disableButton(buttonId) {
+    document.getElementById(buttonId).disabled = true;
+}
+
+function enableButton(buttonId) {
+    document.getElementById(buttonId).disabled = false;
 }

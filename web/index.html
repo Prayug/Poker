@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Poker Game</title>
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="/eel.js"></script>  <!-- Include Eel JavaScript -->
+    <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body>
     <div id="game-container">
@@ -29,16 +29,12 @@
         <div id="actions">
             <button onclick="dealCards()">Deal Cards</button>
             <button onclick="collectBets()">Collect Bets</button>
-            <button onclick="dealFlop()">Deal Flop</button>
-            <button onclick="dealTurn()">Deal Turn</button>
-            <button onclick="dealRiver()">Deal River</button>
+            <button id="flop-button" onclick="dealFlop()">Deal Flop</button>
+            <button id="turn-button" onclick="dealTurn()">Deal Turn</button>
+            <button id="river-button" onclick="dealRiver()">Deal River</button>
             <button onclick="showdown()">Showdown</button>
-            <button onclick="playNextRound()">Play Next Round</button> <!-- New button -->
+            <button onclick="playNextRound()">Play Next Round</button>
         </div>
-        <!-- <div id="log">
-            <h2>Log</h2>
-            <pre id="log-text"></pre>
-        </div> -->
     </div>
     <script src="script.js"></script>
 </body>

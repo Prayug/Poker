@@ -1,21 +1,15 @@
 import eel
-# from src.Player import Player
-# from src.Game import PokerGame
-# from src.Card import Card
 from Player import Player
 from Game import PokerGame
 
-# Initialize Eel
 eel.init('web')
 
-# Initialize the game
 player1 = Player("Alice", 10000)
 player2 = Player("Bob", 10000)
 game = PokerGame([player1, player2])
 
 @eel.expose
 def deal_cards():
-    print("hello")
     game.deal_cards()
     return get_game_state()
 
@@ -36,6 +30,7 @@ def showdown():
 
 @eel.expose
 def play_next_round():
+    game.reset_game()
     game.play_round()
     return get_game_state()
 

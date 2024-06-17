@@ -42,8 +42,15 @@ class PokerGame:
             player.setCards(self.deck.deal())
 
     def deal_community_cards(self, number):
-        for _ in range(number):
+        if number == 3 and not self.flop_dealt:
+            self.community_cards.extend(self.deck.deal() for _ in range(3))
+            self.flop_dealt = True
+        elif number == 1 and not self.turn_dealt and self.flop_dealt:
             self.community_cards.append(self.deck.deal())
+            self.turn_dealt = True
+        elif number == 1 and not self.river_dealt and self.turn_dealt:
+            self.community_cards.append(self.deck.deal())
+            self.river_dealt = True
 
     def collect_bets(self):
         active_players = [p for p in self.players if not p.fold]
@@ -120,39 +127,8 @@ class PokerGame:
         return False
 
     def play_round(self):
-        self.deck = Deck()  # Reset and shuffle the deck
-        self.community_cards = []
-        self.pot = 0
-        self.highest_bet = 0
-        for player in self.players:
-            player.reset_hand()
-
+        self.reset_game()
         self.deal_cards()
-        for player in self.players:
-            print(f"\n{player.name} hand: {player.hand}")
-
-        if self.collect_bets():
-            return
-
-        self.deal_community_cards(3)  # Flop
-        print(f"\nFlop: {self.community_cards}\n")
-
-        if self.collect_bets():
-            return
-
-        self.deal_community_cards(1)  # Turn
-        print(f"\nTurn: {self.community_cards}\n")
-
-        if self.collect_bets():
-            return
-
-        self.deal_community_cards(1)  # River
-        print(f"\nRiver: {self.community_cards}\n")
-
-        if self.collect_bets():
-            return
-
-        self.showdown()
     
     def showdown(self):
         # Simple winner determination placeholder
