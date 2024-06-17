@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Poker Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>Poker Game</h1>
+        <div id="player-info">
+            <h2>Player Info</h2>
+            <div id="player1">
+                <h3>Player 1: <span id="player1-name"></span></h3>
+                <p>Chips: <span id="player1-chips"></span></p>
+                <p>Hand: <span id="player1-hand"></span></p>
+            </div>
+            <div id="player2">
+                <h3>Player 2: <span id="player2-name"></span></h3>
+                <p>Chips: <span id="player2-chips"></span></p>
+                <p>Hand: <span id="player2-hand"></span></p>
+            </div>
+        </div>
+        <div id="community-cards">
+            <h2>Community Cards</h2>
+            <p id="cards"></p>
+        </div>
+        <div id="actions">
+            <button onclick="dealCards()">Deal Cards</button>
+            <button onclick="collectBets()">Collect Bets</button>
+            <button onclick="dealFlop()">Deal Flop</button>
+            <button onclick="dealTurn()">Deal Turn</button>
+            <button onclick="dealRiver()">Deal River</button>
+            <button onclick="showdown()">Showdown</button>
+        </div>
+        <div id="log">
+            <h2>Log</h2>
+            <pre id="log-text"></pre>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

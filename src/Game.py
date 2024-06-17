@@ -2,7 +2,7 @@
 # GUI stuff
 # Multiplayer
 # AI players
-
+import eel
 from itertools import combinations
 import sys
 import os
@@ -16,7 +16,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from Player import Player
 
 class PokerGame:
-
     def __init__(self, players):
         self.deck = Deck()  
         self.players = players
@@ -35,7 +34,7 @@ class PokerGame:
             self.community_cards.append(self.deck.deal())
 
     def collect_bets(self):
-        print("\nCollecting bets...\n")
+        eel.collecting_bets()()
         active_players = [p for p in self.players if not p.fold]
         self.highest_bet = 0
 

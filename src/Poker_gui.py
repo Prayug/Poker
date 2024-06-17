@@ -204,6 +204,12 @@ SCREEN_HEIGHT = 600
 BG_COLOR = (0, 128, 0)  # Green color for the poker table
 WHITE = (255, 255, 255)
 FONT_SIZE = 20
+PLAYER_CARD_WIDTH = 60
+PLAYER_CARD_HEIGHT = 84
+
+# Community card size
+COMMUNITY_CARD_WIDTH = 90
+COMMUNITY_CARD_HEIGHT = 126
 
 # Card images directory
 CARDS_DIR = os.path.join(os.path.dirname(__file__), 'cards')
@@ -214,7 +220,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Poker Game')
 
 # Load card images
-card_images = {}
+player_card_images = {}
+community_card_images = {}
 missing_card_image = pygame.Surface((50, 75))  # Placeholder image for missing cards
 missing_card_image.fill((255, 0, 0))  # Fill placeholder with red color
 
@@ -223,9 +230,11 @@ for suit in ["♠", "♥", "♦", "♣"]:
         card_filename = os.path.join(CARDS_DIR, f"{value}{suit}.png")
         try:
             card_image = pygame.image.load(card_filename)
-            card_images[(suit, value)] = pygame.transform.scale(card_image, (60, 84))
+            player_card_images[(suit, value)] = pygame.transform.scale(card_image, (PLAYER_CARD_WIDTH, PLAYER_CARD_HEIGHT))
+            community_card_images[(suit, value)] = pygame.transform.scale(card_image, (COMMUNITY_CARD_WIDTH, COMMUNITY_CARD_HEIGHT))
         except FileNotFoundError:
-            card_images[(suit, value)] = missing_card_image
+            player_card_images[(suit, value)] = missing_card_image
+            community_card_images[(suit, value)] = pygame.transform.scale(missing_card_image, (COMMUNITY_CARD_WIDTH, COMMUNITY_CARD_HEIGHT))
 
 # Font setup
 font = pygame.font.Font(None, FONT_SIZE)
@@ -234,8 +243,11 @@ def draw_text(text, x, y, color=WHITE):
     text_surface = font.render(text, True, color)
     screen.blit(text_surface, (x, y))
 
-def draw_card(card, x, y):
-    card_img = card_images.get((card.suit.value, card.rank.value), missing_card_image)
+def draw_card(card, x, y, size="player"):
+    if size == "player":
+        card_img = player_card_images.get((card.suit.value, card.rank.value), missing_card_image)
+    else:
+        card_img = community_card_images.get((card.suit.value, card.rank.value), pygame.transform.scale(missing_card_image, (COMMUNITY_CARD_WIDTH, COMMUNITY_CARD_HEIGHT)))
     screen.blit(card_img, (x, y))
 
 def draw_player(player, x, y):
@@ -248,7 +260,7 @@ def draw_pot(pot, x, y):
 
 def draw_community_cards(cards, x, y):
     for i, card in enumerate(cards):
-        draw_card(card, x + i * 50, y)
+        draw_card(card, x + i * (COMMUNITY_CARD_WIDTH + 10), y, size="community")
 
 def main():
     player1 = Player("Alice", 10000)
@@ -272,9 +284,9 @@ def main():
 
         # Draw pot
         draw_pot(game.pot, SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2)
-
+    
         # Draw community cards
-        draw_community_cards(game.community_cards, SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 50)
+        draw_community_cards(game.community_cards, SCREEN_WIDTH // 2 - ((COMMUNITY_CARD_WIDTH + 10) * len(game.community_cards)) // 2, SCREEN_HEIGHT // 2 + 50)
 
         pygame.display.flip()
         clock.tick(30)  # Limit to 30 FPS

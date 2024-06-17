@@ -1,0 +1,17 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#player-info, #community-cards, #actions, #log {
+    margin-top: 20px;
+}
+
+button {
+    margin: 5px;
+}
