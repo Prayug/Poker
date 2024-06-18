@@ -29,10 +29,26 @@ async function dealCards() {
     }
 }
 
-async function collectBets() {
+async function collectBets(action) {
     try {
-        let response = await eel.collect_bets()();
-        updateUI(response);
+        let response;
+        if (action === "raise") {
+            let raise_amount = prompt("Enter raise amount:");
+            if (raise_amount === null) {
+                return;
+            }
+            response = await eel.collect_bets(action, raise_amount)();
+            updateUI(response);
+            alert(`You raised ${raise_amount}. AI calls.`);
+        } else if (action === "check") {
+            response = await eel.collect_bets(action)();
+            updateUI(response);
+            if (response.log.includes("both players check")) {
+                alert("Both players checked. Dealing the next stage.");
+            } else {
+                alert("You checked. AI checks.");
+            }
+        }
     } catch (error) {
         console.error(error);
     }

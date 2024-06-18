@@ -25,6 +25,39 @@ class PokerGame:
         self.highest_bet = 0
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
 
+    def get_game_state(self):
+        def get_card_image_path(card):
+            rank = card.rank.value
+            suit = card.suit.value
+            return f"cards/{rank}{suit}.png"
+
+        return {
+            "player1": {
+                "name": self.players[0].name,
+                "chips": self.players[0].chips,
+                "hand": [get_card_image_path(card) for card in self.players[0].hand]
+            },
+            "player2": {
+                "name": self.players[1].name,
+                "chips": self.players[1].chips,
+                "hand": [get_card_image_path(card) for card in self.players[1].hand]
+            },
+            "community_cards": [get_card_image_path(card) for card in self.community_cards],
+            "log": ["Game state updated"]
+        }
+
+    def advance_game_stage(self):
+        if not self.flop_dealt:
+            self.deal_community_cards(3)
+            self.flop_dealt = True
+        elif not self.turn_dealt:
+            self.deal_community_cards(1)
+            self.turn_dealt = True
+        elif not self.river_dealt:
+            self.deal_community_cards(1)
+            self.river_dealt = True
+        else:
+            self.showdown()
 
     def reset_game(self):
         self.deck = Deck()
@@ -55,90 +88,23 @@ class PokerGame:
             self.community_cards.append(self.deck.deal())
             self.river_dealt = True
 
-    def collect_bets(self):
+    def collect_bets(self, player_action, raise_amount=None):
         active_players = [p for p in self.players if not p.fold]
-        self.highest_bet = 0
-
-        for player in active_players:
-            player.current_bet = 0
-
-        first_bet = True
-        while True:
-            all_acted = True
-            for player in active_players:
-                if player.fold:
-                    continue
-
-                if player.current_bet == self.highest_bet and not first_bet:
-                    continue
-
-                if isinstance(player, AIPlayer):
-                    bet_amount = player.make_decision(self.highest_bet)
-                    self.pot += bet_amount
-                    if bet_amount == 0:
-                        active_players = [p for p in self.players if not p.fold]
-                        if len(active_players) == 1:
-                            winner = active_players[0]
-                            print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
-                            winner.chips += self.pot
-                            return True
-                else:
-                    print(f"{player.name}, you have {player.chips} chips.")
-                    action = input(f"{player.name}, your action (check/call/raise/fold/all-in): ").lower()
-                    if action == "fold":
-                        player.fold_hand()
-                        active_players = [p for p in self.players if not p.fold]
-                        if len(active_players) == 1:
-                            winner = active_players[0]
-                            print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
-                            winner.chips += self.pot
-                            return True
-                    elif action == "check":
-                        if self.highest_bet == 0:
-                            player.check()
-                        else:
-                            print("You can't check, there's a bet to call.")
-                            all_acted = False
-                            continue
-                    elif action == "call":
-                        if player.current_bet < self.highest_bet:
-                            bet_amount = player.call(self.highest_bet)
-                            self.pot += bet_amount
-                            print(f"{player.name} calls with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
-                        else:
-                            print("You have already matched the highest bet.")
-                    elif action == "raise":
-                        raise_amount = int(input("Enter raise amount: "))
-                        if raise_amount < self.highest_bet * 2:
-                            print("You must raise at least 2 times the last raise.")
-                            all_acted = False
-                            continue
-
-                        if raise_amount <= player.chips:
-                            bet_amount = player.call(raise_amount)
-                            self.pot += bet_amount
-                            self.highest_bet = player.current_bet
-                            print(f"{player.name} raises to {raise_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
-                            all_acted = False
-                        else:
-                            print("You don't have enough chips to raise that amount.")
-                            all_acted = False
-                            continue
-                    elif action == "all-in":
-                        bet_amount = player.all_in()
-                        self.pot += bet_amount
-                        if player.current_bet > self.highest_bet:
-                            self.highest_bet = player.current_bet
-                        print(f"{player.name} goes all-in with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
-                        all_acted = False
-
-                    print(f"{player.name} has bet {player.current_bet} in this round.")
-
-            if all_acted:
-                break
-            first_bet = False
-
-        return False
+        
+        if player_action == "check":
+            # Both players check
+            self.players[0].check()
+            self.players[1].check()
+            self.advance_game_stage()  # Automatically advance to the next stage
+        elif player_action == "raise" and raise_amount is not None:
+            raise_amount = int(raise_amount)
+            self.player_raise(self.players[0], raise_amount)
+            self.ai_call(self.players[1])
+        
+        if self.showdown_needed():
+            self.showdown()
+        
+        return self.get_game_state()
 
     def play_round(self):
         self.reset_game()
@@ -205,6 +171,27 @@ class PokerGame:
         if counts == [2, 1, 1, 1]:
             return (2, ranks_by_count), "One Pair"
         return (1, values), "High Card"
+    
+    def player_raise(self, player, raise_amount):
+        raise_amount = player.raise_bet(raise_amount, self.highest_bet)
+        self.pot += raise_amount
+        self.highest_bet = player.current_bet
+        return raise_amount
+
+    def ai_call(self, ai_player):
+        call_amount = ai_player.call(self.highest_bet)
+        self.pot += call_amount
+        return call_amount
+
+    def both_check(self):
+        if not self.flop_dealt:
+            self.deal_community_cards(3)
+        elif not self.turn_dealt:
+            self.deal_community_cards(1)
+        elif not self.river_dealt:
+            self.deal_community_cards(1)
+        else:
+            self.showdown()
 
 def main():
     # pygame.init()
