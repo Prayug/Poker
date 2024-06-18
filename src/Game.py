@@ -10,6 +10,7 @@ import pygame
 from typing import List, Tuple
 from Deck import Deck  
 from Card import Card, Suit, Value 
+from AI import AIPlayer
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,6 +23,8 @@ class PokerGame:
         self.community_cards = []
         self.pot = 0
         self.highest_bet = 0
+        self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
+
 
     def reset_game(self):
         self.deck = Deck()
@@ -69,56 +72,67 @@ class PokerGame:
                 if player.current_bet == self.highest_bet and not first_bet:
                     continue
 
-                print(f"{player.name}, you have {player.chips} chips.")
-                action = input(f"{player.name}, your action (check/call/raise/fold/all-in): ").lower()
-                if action == "fold":
-                    player.fold_hand()
-                    active_players = [p for p in self.players if not p.fold]
-                    if len(active_players) == 1:
-                        winner = active_players[0]
-                        print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
-                        winner.chips += self.pot
-                        return True
-                elif action == "check":
-                    if self.highest_bet == 0:
-                        player.check()
-                    else:
-                        print("You can't check, there's a bet to call.")
-                        all_acted = False
-                        continue
-                elif action == "call":
-                    if player.current_bet < self.highest_bet:
-                        bet_amount = player.call(self.highest_bet)
-                        self.pot += bet_amount
-                        print(f"{player.name} calls with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
-                    else:
-                        print("You have already matched the highest bet.")
-                elif action == "raise":
-                    raise_amount = int(input("Enter raise amount: "))
-                    if raise_amount < self.highest_bet * 2:
-                        print("You must raise at least 2 times the last raise.")
-                        all_acted = False
-                        continue
-
-                    if raise_amount <= player.chips:
-                        bet_amount = player.call(raise_amount)
-                        self.pot += bet_amount
-                        self.highest_bet = player.current_bet
-                        print(f"{player.name} raises to {raise_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
-                        all_acted = False
-                    else:
-                        print("You don't have enough chips to raise that amount.")
-                        all_acted = False
-                        continue
-                elif action == "all-in":
-                    bet_amount = player.all_in()
+                if isinstance(player, AIPlayer):
+                    bet_amount = player.make_decision(self.highest_bet)
                     self.pot += bet_amount
-                    if player.current_bet > self.highest_bet:
-                        self.highest_bet = player.current_bet
-                    print(f"{player.name} goes all-in with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
-                    all_acted = False
+                    if bet_amount == 0:
+                        active_players = [p for p in self.players if not p.fold]
+                        if len(active_players) == 1:
+                            winner = active_players[0]
+                            print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
+                            winner.chips += self.pot
+                            return True
+                else:
+                    print(f"{player.name}, you have {player.chips} chips.")
+                    action = input(f"{player.name}, your action (check/call/raise/fold/all-in): ").lower()
+                    if action == "fold":
+                        player.fold_hand()
+                        active_players = [p for p in self.players if not p.fold]
+                        if len(active_players) == 1:
+                            winner = active_players[0]
+                            print(f"\n{winner.name} wins the pot of {self.pot} chips!\n")
+                            winner.chips += self.pot
+                            return True
+                    elif action == "check":
+                        if self.highest_bet == 0:
+                            player.check()
+                        else:
+                            print("You can't check, there's a bet to call.")
+                            all_acted = False
+                            continue
+                    elif action == "call":
+                        if player.current_bet < self.highest_bet:
+                            bet_amount = player.call(self.highest_bet)
+                            self.pot += bet_amount
+                            print(f"{player.name} calls with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
+                        else:
+                            print("You have already matched the highest bet.")
+                    elif action == "raise":
+                        raise_amount = int(input("Enter raise amount: "))
+                        if raise_amount < self.highest_bet * 2:
+                            print("You must raise at least 2 times the last raise.")
+                            all_acted = False
+                            continue
 
-                print(f"{player.name} has bet {player.current_bet} in this round.")
+                        if raise_amount <= player.chips:
+                            bet_amount = player.call(raise_amount)
+                            self.pot += bet_amount
+                            self.highest_bet = player.current_bet
+                            print(f"{player.name} raises to {raise_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
+                            all_acted = False
+                        else:
+                            print("You don't have enough chips to raise that amount.")
+                            all_acted = False
+                            continue
+                    elif action == "all-in":
+                        bet_amount = player.all_in()
+                        self.pot += bet_amount
+                        if player.current_bet > self.highest_bet:
+                            self.highest_bet = player.current_bet
+                        print(f"{player.name} goes all-in with {bet_amount}. Current bet: {player.current_bet}, Pot: {self.pot}")
+                        all_acted = False
+
+                    print(f"{player.name} has bet {player.current_bet} in this round.")
 
             if all_acted:
                 break

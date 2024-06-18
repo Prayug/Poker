@@ -1,11 +1,12 @@
 import eel
 from Player import Player
 from Game import PokerGame
+from AI import AIPlayer
 
 eel.init('web')
 
 player1 = Player("Alice", 10000)
-player2 = Player("Bob", 10000)
+player2 = AIPlayer("Bob", 10000)  #AI player
 game = PokerGame([player1, player2])
 cards_dealt = False
 
@@ -20,7 +21,10 @@ def deal_cards():
 @eel.expose
 def collect_bets():
     game.collect_bets()
-    return get_game_state()
+    if game.showdown_needed():
+        game.showdown()
+        return get_game_state()
+    return None
 
 @eel.expose
 def deal_community_cards(number):

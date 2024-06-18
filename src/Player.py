@@ -42,3 +42,9 @@ class Player:
         self.current_bet += all_in_amount
         self.chips = 0
         return all_in_amount
+
+    def is_user(self):
+        return False
+
+    def make_decision(self, highest_bet):
+        raise NotImplementedError("Subclass must implement make_decision method")
