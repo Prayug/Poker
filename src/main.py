@@ -35,18 +35,24 @@ def play_next_round():
     return get_game_state()
 
 def get_game_state():
+    def get_card_image_path(card):
+        rank = card.rank.value
+        suit = card.suit.value
+        return f"cards/{rank}{suit}.png"
+
+
     return {
         "player1": {
             "name": game.players[0].name,
             "chips": game.players[0].chips,
-            "hand": [str(card) for card in game.players[0].hand]
+            "hand": [get_card_image_path(card) for card in game.players[0].hand]
         },
         "player2": {
             "name": game.players[1].name,
             "chips": game.players[1].chips,
-            "hand": [str(card) for card in game.players[1].hand]
+            "hand": [get_card_image_path(card) for card in game.players[1].hand]
         },
-        "community_cards": [str(card) for card in game.community_cards],
+        "community_cards": [get_card_image_path(card) for card in game.community_cards],
         "log": ["Game state updated"]
     }
 

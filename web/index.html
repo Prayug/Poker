@@ -14,24 +14,24 @@
             <div id="player1">
                 <h3>Player 1: <span id="player1-name"></span></h3>
                 <p>Chips: <span id="player1-chips"></span></p>
-                <p>Hand: <span id="player1-hand"></span></p>
+                <div id="player1-hand" class="hand"></div>
             </div>
             <div id="player2">
                 <h3>Player 2: <span id="player2-name"></span></h3>
                 <p>Chips: <span id="player2-chips"></span></p>
-                <p>Hand: <span id="player2-hand"></span></p>
+                <div id="player2-hand" class="hand"></div>
             </div>
         </div>
         <div id="community-cards">
             <h2>Community Cards</h2>
-            <div id="cards"></div>
+            <div id="cards" class="hand"></div>
         </div>
         <div id="actions">
             <button onclick="dealCards()">Deal Cards</button>
             <button onclick="collectBets()">Collect Bets</button>
             <button id="flop-button" onclick="dealFlop()">Deal Flop</button>
-            <button id="turn-button" onclick="dealTurn()">Deal Turn</button>
-            <button id="river-button" onclick="dealRiver()">Deal River</button>
+            <button id="turn-button" onclick="dealTurn()" disabled>Deal Turn</button>
+            <button id="river-button" onclick="dealRiver()" disabled>Deal River</button>
             <button onclick="showdown()">Showdown</button>
             <button onclick="playNextRound()">Play Next Round</button>
         </div>
