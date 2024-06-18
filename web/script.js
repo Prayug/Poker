@@ -1,9 +1,31 @@
+document.addEventListener('DOMContentLoaded', (event) => {
+    initializeGame();
+});
+
+async function initializeGame() {
+    try {
+        let response = await eel.get_initial_state()();
+        updateUI(response);
+        
+        // Enable or disable the "Deal Cards" button based on the game state
+        if (response.player1.hand.length > 0) {
+            disableButton("deal-cards-button");
+            enableButton("flop-button");
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function dealCards() {
+    disableButton("deal-cards-button");
     try {
         let response = await eel.deal_cards()();
         updateUI(response);
+        enableButton("flop-button");
     } catch (error) {
         console.error(error);
+        enableButton("deal-cards-button"); // Re-enable in case of error
     }
 }
 
@@ -60,7 +82,9 @@ async function showdown() {
 async function playNextRound() {
     disableButton("turn-button");
     disableButton("river-button");
-    enableButton("flop-button");
+    disableButton("flop-button");
+    enableButton("deal-cards-button");
+
     try {
         let response = await eel.play_next_round()();
         updateUI(response);

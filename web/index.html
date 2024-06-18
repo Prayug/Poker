@@ -27,9 +27,9 @@
             <div id="cards" class="hand"></div>
         </div>
         <div id="actions">
-            <button onclick="dealCards()">Deal Cards</button>
+            <button id="deal-cards-button" onclick="dealCards()">Deal Cards</button>
             <button onclick="collectBets()">Collect Bets</button>
-            <button id="flop-button" onclick="dealFlop()">Deal Flop</button>
+            <button id="flop-button" onclick="dealFlop()" disabled>Deal Flop</button>
             <button id="turn-button" onclick="dealTurn()" disabled>Deal Turn</button>
             <button id="river-button" onclick="dealRiver()" disabled>Deal River</button>
             <button onclick="showdown()">Showdown</button>

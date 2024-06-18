@@ -7,10 +7,14 @@ eel.init('web')
 player1 = Player("Alice", 10000)
 player2 = Player("Bob", 10000)
 game = PokerGame([player1, player2])
+cards_dealt = False
 
 @eel.expose
 def deal_cards():
-    game.deal_cards()
+    global cards_dealt
+    if not cards_dealt:
+        game.deal_cards()
+        cards_dealt = True
     return get_game_state()
 
 @eel.expose
@@ -30,8 +34,9 @@ def showdown():
 
 @eel.expose
 def play_next_round():
+    global cards_dealt
     game.reset_game()
-    game.play_round()
+    cards_dealt = False
     return get_game_state()
 
 def get_game_state():
@@ -39,7 +44,6 @@ def get_game_state():
         rank = card.rank.value
         suit = card.suit.value
         return f"cards/{rank}{suit}.png"
-
 
     return {
         "player1": {
@@ -55,6 +59,10 @@ def get_game_state():
         "community_cards": [get_card_image_path(card) for card in game.community_cards],
         "log": ["Game state updated"]
     }
+
+@eel.expose
+def get_initial_state():
+    return get_game_state()
 
 if __name__ == "__main__":
     eel.start('index.html', size=(800, 600))
