@@ -41,12 +41,8 @@
         </div>
         <div id="actions">
             <button id="deal-cards-button" onclick="dealCards()">Deal Cards</button>
-            <button onclick="collectBets('check')">Check</button>
+            <button id="check-button" onclick="handleCheckClick()">Check</button>
             <button onclick="collectBets('raise')">Raise</button>
-            <button id="flop-button" onclick="dealFlop()" disabled>Deal Flop</button>
-            <button id="turn-button" onclick="dealTurn()" disabled>Deal Turn</button>
-            <button id="river-button" onclick="dealRiver()" disabled>Deal River</button>
-            <button onclick="showdown()">Showdown</button>
             <button onclick="playNextRound()">Play Next Round</button>
         </div>
     </div>

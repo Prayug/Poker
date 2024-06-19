@@ -10,7 +10,6 @@ async function initializeGame() {
         // Enable or disable the "Deal Cards" button based on the game state
         if (response.player1.hand.length > 0) {
             disableButton("deal-cards-button");
-            enableButton("flop-button");
         }
     } catch (error) {
         console.error(error);
@@ -22,7 +21,7 @@ async function dealCards() {
     try {
         let response = await eel.deal_cards()();
         updateUI(response);
-        enableButton("flop-button");
+        enableButton("check-button");
     } catch (error) {
         console.error(error);
         enableButton("deal-cards-button"); // Re-enable in case of error
@@ -40,6 +39,7 @@ async function collectBets(action) {
             response = await eel.collect_bets(action, raise_amount)();
             updateUI(response);
             alert(`You raised ${raise_amount}. AI calls.`);
+            eel.collect_bets("check")()
         } else if (action === "check") {
             response = await eel.collect_bets(action)();
             updateUI(response);
@@ -54,51 +54,23 @@ async function collectBets(action) {
     }
 }
 
-async function dealFlop() {
-    disableButton("flop-button");
+async function handleCheckClick() {
     try {
-        let response = await eel.deal_community_cards(3)();
+        let response = await eel.collect_bets("check")();
         updateUI(response);
-        enableButton("turn-button");
-    } catch (error) {
-        console.error(error);
-    }
-}
 
-async function dealTurn() {
-    disableButton("turn-button");
-    try {
-        let response = await eel.deal_community_cards(1)();
-        updateUI(response);
-        enableButton("river-button");
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function dealRiver() {
-    disableButton("river-button");
-    try {
-        let response = await eel.deal_community_cards(1)();
-        updateUI(response);
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function showdown() {
-    try {
-        let response = await eel.showdown()();
-        updateUI(response);
+        if (response.log.includes("Dealing Flop")) {
+            enableButton("turn-button");
+        } else if (response.log.includes("Dealing Turn")) {
+            enableButton("river-button");
+        }
     } catch (error) {
         console.error(error);
     }
 }
 
 async function playNextRound() {
-    disableButton("turn-button");
-    disableButton("river-button");
-    disableButton("flop-button");
+    ["turn-button", "river-button", "flop-button"].forEach(disableButton);
     enableButton("deal-cards-button");
 
     try {
@@ -131,9 +103,15 @@ function updateCommunityCards(response) {
 }
 
 function disableButton(buttonId) {
-    document.getElementById(buttonId).disabled = true;
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.disabled = true;
+    }
 }
 
 function enableButton(buttonId) {
-    document.getElementById(buttonId).disabled = false;
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.disabled = false;
+    }
 }

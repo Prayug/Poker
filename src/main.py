@@ -10,6 +10,11 @@ player2 = AIPlayer("AI", 10000)  # AI player
 game = PokerGame([player1, player2])
 cards_dealt = False
 
+
+@eel.expose
+def get_initial_state():
+    return game.get_game_state()
+
 @eel.expose
 def deal_cards():
     global cards_dealt
@@ -20,28 +25,11 @@ def deal_cards():
 
 @eel.expose
 def collect_bets(action, raise_amount=None):
-    message = ""
     if action == "check":
-        game.players[0].check()
-        game.players[1].check()
-        message = "Player checks"
+        game.collect_bets(action)
     elif action == "raise" and raise_amount is not None:
-        raise_amount = int(raise_amount)
-        game.player_raise(game.players[0], raise_amount)
-        game.ai_call(game.players[1])
-        message = f"Player raises {raise_amount}"
-
-    game.advance_game_stage()
-
-    if game.showdown_needed():
-        winner = game.showdown()
-        message = f"{winner.name} wins this round"
-        eel.sleep(3)
-        play_next_round()
-
-    game_state = game.get_game_state()
-    game_state["message"] = message
-    return game_state
+        game.collect_bets(action, raise_amount)
+    return game.get_game_state()
 
 @eel.expose
 def deal_community_cards(number):
@@ -50,13 +38,8 @@ def deal_community_cards(number):
 
 @eel.expose
 def showdown():
-    winner = game.showdown()
-    message = f"{winner.name} wins this round"
-    game_state = game.get_game_state()
-    game_state["message"] = message
-    eel.sleep(3)
-    play_next_round()
-    return game_state
+    game.showdown()
+    return game.get_game_state()
 
 @eel.expose
 def play_next_round():

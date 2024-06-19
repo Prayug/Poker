@@ -101,8 +101,8 @@ class PokerGame:
             self.player_raise(self.players[0], raise_amount)
             self.ai_call(self.players[1])
         
-        if self.showdown_needed():
-            self.showdown()
+        # if self.showdown_needed():
+        #     self.showdown()
         
         return self.get_game_state()
 
