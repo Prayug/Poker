@@ -39,15 +39,7 @@ async function collectBets(action) {
             response = await eel.collect_bets(action, raise_amount)();
             updateUI(response);
             alert(`You raised ${raise_amount}. AI calls.`);
-            eel.collect_bets("check")()
-        } else if (action === "check") {
-            response = await eel.collect_bets(action)();
-            updateUI(response);
-            if (response.log.includes("both players check")) {
-                alert("Both players checked. Dealing the next stage.");
-            } else {
-                alert("You checked. AI checks.");
-            }
+            handleCheckClick();
         }
     } catch (error) {
         console.error(error);
