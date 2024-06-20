@@ -18,11 +18,16 @@ from Player import Player
 
 class PokerGame:
     def __init__(self, players):
-        self.deck = Deck()  
+        self.deck = Deck()
         self.players = players
         self.community_cards = []
         self.pot = 0
         self.highest_bet = 0
+        self.flop_dealt = False
+        self.turn_dealt = False
+        self.river_dealt = False
+        self.log = []
+        self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
 
     def get_game_state(self):
@@ -43,6 +48,8 @@ class PokerGame:
                 "hand": [get_card_image_path(card) for card in self.players[1].hand]
             },
             "community_cards": [get_card_image_path(card) for card in self.community_cards],
+            "pot": self.pot,
+            "highest_bet": self.highest_bet,
             "log": ["Game state updated"]
         }
 
@@ -92,17 +99,13 @@ class PokerGame:
         active_players = [p for p in self.players if not p.fold]
         
         if player_action == "check":
-            # Both players check
             self.players[0].check()
             self.players[1].check()
-            self.advance_game_stage()  # Automatically advance to the next stage
+            self.advance_game_stage()
         elif player_action == "raise" and raise_amount is not None:
             raise_amount = int(raise_amount)
             self.player_raise(self.players[0], raise_amount)
             self.ai_call(self.players[1])
-        
-        # if self.showdown_needed():
-        #     self.showdown()
         
         return self.get_game_state()
 
@@ -178,8 +181,11 @@ class PokerGame:
         self.highest_bet = player.current_bet
         return raise_amount
 
+
     def ai_call(self, ai_player):
-        call_amount = ai_player.call(self.highest_bet)
+        call_amount = min(self.highest_bet, ai_player.chips)
+        ai_player.current_bet += call_amount
+        ai_player.chips -= call_amount
         self.pot += call_amount
         return call_amount
 
