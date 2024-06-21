@@ -95,17 +95,21 @@ class PokerGame:
             self.community_cards.append(self.deck.deal())
             self.river_dealt = True
 
-    def collect_bets(self, player_action, raise_amount=None):
-        active_players = [p for p in self.players if not p.fold]
-        
+    def collect_bets(self, player_action, raise_amount=None):        
         if player_action == "check":
             self.players[0].check()
             self.players[1].check()
             self.advance_game_stage()
         elif player_action == "raise" and raise_amount is not None:
-            raise_amount = int(raise_amount)
+            # Case that AI would be put all in
+            if self.players[1].chips < int(raise_amount):
+                raise_amount = self.players[1].chips
+            else:
+                raise_amount = int(raise_amount)
+
             self.player_raise(self.players[0], raise_amount)
             self.ai_call(self.players[1])
+
         
         return self.get_game_state()
 
@@ -176,15 +180,20 @@ class PokerGame:
         return (1, values), "High Card"
     
     def player_raise(self, player, raise_amount):
-        raise_amount = player.raise_bet(raise_amount, self.highest_bet)
+        raise_amount = player.raise_bet(raise_amount)
         self.pot += raise_amount
+        print(player.current_bet)
+        print("high")
+        print(self.highest_bet)
         self.highest_bet = player.current_bet
         return raise_amount
 
 
     def ai_call(self, ai_player):
+        print("current")
+        print(self.players[0].current_bet)
         call_amount = min(self.highest_bet, ai_player.chips)
-        ai_player.current_bet += call_amount
+        ai_player.current_bet = call_amount
         ai_player.chips -= call_amount
         self.pot += call_amount
         return call_amount

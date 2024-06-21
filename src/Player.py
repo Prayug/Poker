@@ -15,7 +15,7 @@ class Player:
     def bet(self, amount):
         actual_bet = min(amount, self.chips)
         self.chips -= actual_bet
-        self.current_bet += actual_bet
+        self.current_bet = actual_bet
         return actual_bet
 
     def reset_hand(self):
@@ -33,11 +33,12 @@ class Player:
         call_amount = highest_bet - self.current_bet
         return self.bet(call_amount)
     
-    def raise_bet(self, raise_amount, highest_bet):
+    def raise_bet(self, raise_amount):
         total_bet = raise_amount
         return self.bet(total_bet)
     
     def all_in(self):
+        print("all-in")
         all_in_amount = self.chips
         self.current_bet += all_in_amount
         self.chips = 0
