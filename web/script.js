@@ -28,18 +28,26 @@ async function dealCards() {
     }
 }
 
-async function collectBets(action) {
+async function collectBets(action, raise_amount = null) {
     try {
         let response;
         if (action === "raise") {
-            let raise_amount = prompt("Enter raise amount:");
             if (raise_amount === null) {
                 return;
             }
             response = await eel.collect_bets(action, raise_amount)();
             updateUI(response);
-            alert(`You raised ${raise_amount}. AI calls.`);
-            handleCheckClick();
+            showMessage(`You raised ${raise_amount}. AI calls.`);
+        } else if (action === "check") {
+            response = await eel.collect_bets(action)();
+            updateUI(response);
+            showMessage("Check");
+
+            if (response.log.includes("Dealing Flop")) {
+                enableButton("turn-button");
+            } else if (response.log.includes("Dealing Turn")) {
+                enableButton("river-button");
+            }
         }
     } catch (error) {
         console.error(error);
@@ -47,17 +55,14 @@ async function collectBets(action) {
 }
 
 async function handleCheckClick() {
-    try {
-        let response = await eel.collect_bets("check")();
-        updateUI(response);
+    await collectBets("check");
+}
 
-        if (response.log.includes("Dealing Flop")) {
-            enableButton("turn-button");
-        } else if (response.log.includes("Dealing Turn")) {
-            enableButton("river-button");
-        }
-    } catch (error) {
-        console.error(error);
+async function handleRaiseClick() {
+    const raiseAmount = document.getElementById("raise-input").value;
+    if (raiseAmount) {
+        await collectBets("raise", raiseAmount);
+        hideRaiseInput();
     }
 }
 
@@ -106,4 +111,28 @@ function enableButton(buttonId) {
     if (button) {
         button.disabled = false;
     }
+}
+
+function showMessage(text) {
+    const messageDiv = document.getElementById("message");
+    messageDiv.innerText = text;
+    messageDiv.style.display = "block";
+    messageDiv.style.opacity = 1;
+
+    setTimeout(() => {
+        messageDiv.style.opacity = 0;
+        setTimeout(() => {
+            messageDiv.style.display = "none";
+        }, 1000); // Matches the CSS transition duration
+    }, 2000); // Keeps the message visible for 2 seconds before starting the fade-out
+}
+
+function showRaiseInput() {
+    const raiseInputContainer = document.getElementById("raise-input-container");
+    raiseInputContainer.style.display = "block";
+}
+
+function hideRaiseInput() {
+    const raiseInputContainer = document.getElementById("raise-input-container");
+    raiseInputContainer.style.display = "none";
 }

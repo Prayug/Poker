@@ -7,15 +7,30 @@
     <script type="text/javascript" src="/eel.js"></script>
     <style>
         #message {
-            position: absolute;
-            top: 10px;
+            position: fixed;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             padding: 10px;
             background: rgba(0, 0, 0, 0.7);
             color: white;
             border-radius: 5px;
             display: none;
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+        #raise-input-container {
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #raise-input {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -42,11 +57,15 @@
         <div id="actions">
             <button id="deal-cards-button" onclick="dealCards()">Deal Cards</button>
             <button id="check-button" onclick="handleCheckClick()">Check</button>
-            <button onclick="collectBets('raise')">Raise</button>
+            <button id="raise-button" onclick="showRaiseInput()">Raise</button>
             <button onclick="playNextRound()">Play Next Round</button>
         </div>
     </div>
-    <div id="message"></div>
+    <div id="message">Check</div>
+    <div id="raise-input-container">
+        <input type="number" id="raise-input" placeholder="Enter raise amount">
+        <button onclick="handleRaiseClick()">Submit</button>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
