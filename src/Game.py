@@ -35,6 +35,9 @@ class PokerGame:
         self.players[1].chips += self.pot
         self.pot = 0
         self.log.append(f"{self.players[1].name} wins the pot.")
+        self.reset_game()
+        
+        
 
     def get_game_state(self):
         def get_card_image_path(card):

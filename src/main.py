@@ -51,7 +51,6 @@ def play_next_round():
 def fold():
     global cards_dealt
     game.fold()
-    play_next_round()
     cards_dealt = False
     return game.get_game_state()
 
