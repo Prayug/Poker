@@ -10,7 +10,6 @@ player2 = AIPlayer("AI", 10000)  # AI player
 game = PokerGame([player1, player2])
 cards_dealt = False
 
-
 @eel.expose
 def get_initial_state():
     return game.get_game_state()
@@ -44,9 +43,16 @@ def showdown():
 @eel.expose
 def play_next_round():
     global cards_dealt
-    game.reset_game()
+    game.play_next_round()
     cards_dealt = False
     return game.get_game_state()
 
-if __name__ == "__main__":
-    eel.start('index.html', size=(800, 600))
+@eel.expose
+def fold():
+    global cards_dealt
+    game.fold()
+    play_next_round()
+    cards_dealt = False
+    return game.get_game_state()
+
+eel.start('index.html', size=(1000, 600))

@@ -32,7 +32,7 @@ async function collectBets(action, raise_amount = null) {
     try {
         let response;
         if (action === "raise") {
-            if (raise_amount === null) {
+            if (raise_amount === null || raise_amount < 0) {
                 return;
             }
             response = await eel.collect_bets(action, raise_amount)();
@@ -43,10 +43,8 @@ async function collectBets(action, raise_amount = null) {
             updateUI(response);
             showMessage("Check");
 
-            if (response.log.includes("Dealing Flop")) {
-                enableButton("turn-button");
-            } else if (response.log.includes("Dealing Turn")) {
-                enableButton("river-button");
+            if (response.log.includes("Dealing Flop") || response.log.includes("Dealing Turn") || response.log.includes("Dealing River")) {
+                enableButton("play-next-round-button");
             }
         }
     } catch (error) {
@@ -67,12 +65,25 @@ async function handleRaiseClick() {
 }
 
 async function playNextRound() {
-    ["turn-button", "river-button", "flop-button"].forEach(disableButton);
-    enableButton("deal-cards-button");
+    if (!document.getElementById("play-next-round-button").disabled) {
+        ["turn-button", "river-button", "flop-button"].forEach(disableButton);
+        enableButton("deal-cards-button");
 
+        try {
+            let response = await eel.play_next_round()();
+            updateUI(response);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+
+async function handleFoldClick() {
     try {
-        let response = await eel.play_next_round()();
+        let response = await eel.fold()();
         updateUI(response);
+        showMessage("You folded. AI wins the round.");
+        enableButton("play-next-round-button");
     } catch (error) {
         console.error(error);
     }
@@ -123,8 +134,8 @@ function showMessage(text) {
         messageDiv.style.opacity = 0;
         setTimeout(() => {
             messageDiv.style.display = "none";
-        }, 1000); // Matches the CSS transition duration
-    }, 2000); // Keeps the message visible for 2 seconds before starting the fade-out
+        }, 1000); 
+    }, 750);
 }
 
 function showRaiseInput() {

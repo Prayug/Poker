@@ -30,6 +30,12 @@ class PokerGame:
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
 
+    def fold(self):
+        self.log.append(f"{self.players[0].name} folds.")
+        self.players[1].chips += self.pot
+        self.pot = 0
+        self.log.append(f"{self.players[1].name} wins the pot.")
+
     def get_game_state(self):
         def get_card_image_path(card):
             rank = card.rank.value
