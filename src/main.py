@@ -5,7 +5,7 @@ from AI import AIPlayer
 
 eel.init('web')
 
-player1 = Player("Alice", 10000)
+player1 = Player("Player", 10000)
 player2 = AIPlayer("AI", 10000)  # AI player
 game = PokerGame([player1, player2])
 cards_dealt = False
