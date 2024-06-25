@@ -38,6 +38,8 @@ async function collectBets(action, raise_amount = null) {
             response = await eel.collect_bets(action, raise_amount)();
             updateUI(response);
             showMessage(`You raised ${raise_amount}. AI calls.`);
+            response = await eel.collect_bets("check")();
+            updateUI(response);
         } else if (action === "check") {
             response = await eel.collect_bets(action)();
             updateUI(response);
@@ -70,7 +72,7 @@ async function playNextRound() {
         enableButton("deal-cards-button");
 
         try {
-            let response = await eel.play_next_round()();
+            let response = await eel.reset_game()();
             updateUI(response);
         } catch (error) {
             console.error(error);

@@ -26,6 +26,7 @@ class PokerGame:
         self.flop_dealt = False
         self.turn_dealt = False
         self.river_dealt = False
+        self.winner_paid = False
         self.log = []
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
@@ -37,8 +38,6 @@ class PokerGame:
         self.log.append(f"{self.players[1].name} wins the pot.")
         self.reset_game()
         
-        
-
     def get_game_state(self):
         def get_card_image_path(card):
             rank = card.rank.value
@@ -73,7 +72,8 @@ class PokerGame:
             self.deal_community_cards(1)
             self.river_dealt = True
         else:
-            self.showdown()
+            if self.winner_paid == False:
+                self.showdown()
 
     def reset_game(self):
         self.deck = Deck()
@@ -83,6 +83,7 @@ class PokerGame:
         self.flop_dealt = False
         self.turn_dealt = False
         self.river_dealt = False
+        self.winner_paid = False
         for player in self.players:
             player.reset_hand()
         self.log = []
@@ -135,17 +136,20 @@ class PokerGame:
         print(f"\n{self.players[0].name}'s best hand: {player1_best_hand} ({player1_hand_type})")
         print(f"{self.players[1].name}'s best hand: {player2_best_hand} ({player2_hand_type})")
 
-        if player1_best_hand > player2_best_hand:
+        if (player1_best_hand > player2_best_hand):
             print(f"\n{self.players[0].name} wins the pot of {self.pot} chips!\n")
             self.players[0].chips += self.pot
-        elif player2_best_hand > player1_best_hand:
+            self.winner_paid = True
+        elif (player2_best_hand > player1_best_hand):
             print(f"\n{self.players[1].name} wins the pot of {self.pot} chips!\n")
             self.players[1].chips += self.pot
+            self.winner_paid = True
         else:
             print("\nIt's a tie!")
             split_pot = self.pot // 2
             self.players[0].chips += split_pot
             self.players[1].chips += split_pot
+            self.winner_paid = True
 
     def evaluate_hand(self, cards: List[Card]) -> Tuple[Tuple[int, List[int]], str]:
         best_rank = (-1, [])

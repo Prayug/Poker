@@ -41,9 +41,9 @@ def showdown():
     return game.get_game_state()
 
 @eel.expose
-def play_next_round():
+def reset_game():
     global cards_dealt
-    game.play_next_round()
+    game.reset_game()
     cards_dealt = False
     return game.get_game_state()
 
