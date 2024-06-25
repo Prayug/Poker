@@ -98,3 +98,22 @@ h1 {
     padding: 25px;
     font-size: 30px;
 }
+
+.blind-icon {
+    width: 30px;
+    height: 30px;
+    background-size: cover; /* Ensure the icons cover the entire element */
+    display: none; /* Initially hidden */
+    position: absolute; /* To position it relative to its container */
+    top: 0; /* Adjust as needed */
+    right: 0; /* Adjust as needed */
+}
+
+.blind-icon.big-blind {
+    background-image: url('avatars/big-blind.png');
+}
+
+.blind-icon.small-blind {
+    background-image: url('avatars/small-blind.png');
+}
+

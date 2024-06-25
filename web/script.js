@@ -68,12 +68,11 @@ async function handleRaiseClick() {
 
 async function playNextRound() {
     if (!document.getElementById("play-next-round-button").disabled) {
-        ["turn-button", "river-button", "flop-button"].forEach(disableButton);
-        enableButton("deal-cards-button");
-
         try {
             let response = await eel.reset_game()();
             updateUI(response);
+            disableButton("play-next-round-button");
+            enableButton("deal-cards-button");
         } catch (error) {
             console.error(error);
         }
@@ -101,6 +100,41 @@ function updateUI(response) {
     updateHand(document.getElementById("player2-hand"), response.player2.hand);
 
     updateCommunityCards(response);
+
+    // Update pot and bets information
+    document.getElementById("pot").innerText = `Pot: ${response.pot}`;
+    document.getElementById("highest-bet").innerText = `Highest Bet: ${response.highest_bet}`;
+
+    // Update blinds and dealer information
+    updateBlinds(response.current_dealer);
+
+    // Enable Play Next Round button if the game is in showdown state
+    if (response.is_showdown) {
+        enableButton("play-next-round-button");
+    }
+}
+
+function updateBlinds(currentDealer) {
+    const player1Blind = document.getElementById("player1-blind");
+    const player2Blind = document.getElementById("player2-blind");
+
+    if (currentDealer === 0) { // Player 1 is the dealer
+        player1Blind.classList.add('big-blind');
+        player1Blind.classList.remove('small-blind');
+        player1Blind.style.display = 'block';
+
+        player2Blind.classList.add('small-blind');
+        player2Blind.classList.remove('big-blind');
+        player2Blind.style.display = 'block';
+    } else { // Player 2 is the dealer
+        player1Blind.classList.add('small-blind');
+        player1Blind.classList.remove('big-blind');
+        player1Blind.style.display = 'block';
+
+        player2Blind.classList.add('big-blind');
+        player2Blind.classList.remove('small-blind');
+        player2Blind.style.display = 'block';
+    }
 }
 
 function updateHand(element, hand) {

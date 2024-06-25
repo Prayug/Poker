@@ -12,6 +12,7 @@
         <div id="player-info">
             <div id="player1" class="player">
                 <img src="avatars/player1.png" class="avatar" alt="Player 1 Avatar">
+                <div class="blind-icon" id="player1-blind"></div> <!-- Blind icon placeholder -->
                 <h3>Player 1: <span id="player1-name"></span></h3>
                 <br>
                 <p style="padding-left: 10px">Chips: <span id="player1-chips"></span></p>
@@ -19,8 +20,8 @@
             </div>
             <div id="player2" class="player">
                 <img src="avatars/player2.png" class="avatar" alt="Player 2 Avatar">
+                <div class="blind-icon" id="player2-blind"></div> <!-- Blind icon placeholder -->
                 <h3>Player 2: <span id="player2-name"></span></h3>
-                
                 <p style="padding-left: 10px">Chips: <span id="player2-chips"></span></p>
                 <div id="player2-hand" class="hand"></div>
             </div>
@@ -28,6 +29,10 @@
         <div id="community-cards">
             <h2>Community Cards</h2>
             <div id="cards" class="hand"></div>
+        </div>
+        <div id="pot-info">
+            <p id="pot">Pot: 0</p>
+            <p id="highest-bet">Highest Bet: 0</p>
         </div>
         <div id="actions">
             <button id="deal-cards-button" class="action-button" onclick="dealCards()">Deal Cards</button>

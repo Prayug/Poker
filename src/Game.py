@@ -28,6 +28,9 @@ class PokerGame:
         self.river_dealt = False
         self.winner_paid = False
         self.is_showdown = False 
+        self.current_dealer = 0  
+        self.small_blind = 50
+        self.big_blind = 100
         self.log = []
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
@@ -59,7 +62,11 @@ class PokerGame:
             "community_cards": [get_card_image_path(card) for card in self.community_cards],
             "pot": self.pot,
             "highest_bet": self.highest_bet,
-            "log": ["Game state updated"]
+            "log": ["Game state updated"],
+            "is_showdown": self.is_showdown,  # Add this flag to the response
+            "small_blind": self.small_blind,
+            "big_blind": self.big_blind,
+            "current_dealer": self.current_dealer
         }
 
     def advance_game_stage(self):
@@ -88,7 +95,23 @@ class PokerGame:
         self.is_showdown = False
         for player in self.players:
             player.reset_hand()
+        self.current_dealer = (self.current_dealer + 1) % 2 
+        self.collect_blinds()
         self.log = []
+
+    def collect_blinds(self):
+        if self.current_dealer == 0:  # Player1 is the dealer
+            self.players[0].chips -= self.big_blind
+            self.players[1].chips -= self.small_blind
+            self.players[0].current_bet = self.big_blind
+            self.players[1].current_bet = self.small_blind
+        else:  # Player2 (AI) is the dealer
+            self.players[0].chips -= self.small_blind
+            self.players[1].chips -= self.big_blind
+            self.players[0].current_bet = self.small_blind
+            self.players[1].current_bet = self.big_blind
+        self.pot += self.big_blind + self.small_blind
+        self.highest_bet = self.big_blind
 
     def deal_cards(self):
         for player in self.players:
