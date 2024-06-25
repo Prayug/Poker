@@ -27,6 +27,7 @@ class PokerGame:
         self.turn_dealt = False
         self.river_dealt = False
         self.winner_paid = False
+        self.is_showdown = False 
         self.log = []
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
@@ -53,7 +54,7 @@ class PokerGame:
             "player2": {
                 "name": self.players[1].name,
                 "chips": self.players[1].chips,
-                "hand": [get_card_image_path(card) for card in self.players[1].hand]
+                "hand": [get_card_image_path(card) for card in self.players[1].hand] if self.is_showdown else ["cards/back.png" for card in self.players[1].hand]
             },
             "community_cards": [get_card_image_path(card) for card in self.community_cards],
             "pot": self.pot,
@@ -84,6 +85,7 @@ class PokerGame:
         self.turn_dealt = False
         self.river_dealt = False
         self.winner_paid = False
+        self.is_showdown = False
         for player in self.players:
             player.reset_hand()
         self.log = []
@@ -130,17 +132,19 @@ class PokerGame:
     def showdown(self):
         # Simple winner determination placeholder
         print("\nShowdown!")
+        self.is_showdown = True  # Set the flag to True
+
         player1_best_hand, player1_hand_type = self.evaluate_hand(self.players[0].hand + self.community_cards)
         player2_best_hand, player2_hand_type = self.evaluate_hand(self.players[1].hand + self.community_cards)
 
         print(f"\n{self.players[0].name}'s best hand: {player1_best_hand} ({player1_hand_type})")
         print(f"{self.players[1].name}'s best hand: {player2_best_hand} ({player2_hand_type})")
 
-        if (player1_best_hand > player2_best_hand):
+        if player1_best_hand > player2_best_hand:
             print(f"\n{self.players[0].name} wins the pot of {self.pot} chips!\n")
             self.players[0].chips += self.pot
             self.winner_paid = True
-        elif (player2_best_hand > player1_best_hand):
+        elif player2_best_hand > player1_best_hand:
             print(f"\n{self.players[1].name} wins the pot of {self.pot} chips!\n")
             self.players[1].chips += self.pot
             self.winner_paid = True
