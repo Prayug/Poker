@@ -18,6 +18,7 @@ def get_initial_state():
 def deal_cards():
     global cards_dealt
     if not cards_dealt:
+        game.collect_blinds()  # Collect blinds when dealing cards
         game.deal_cards()
         cards_dealt = True
     return game.get_game_state()

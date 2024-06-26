@@ -114,6 +114,7 @@ function updateUI(response) {
     }
 }
 
+
 function updateBlinds(currentDealer) {
     const player1Blind = document.getElementById("player1-blind");
     const player2Blind = document.getElementById("player2-blind");
@@ -121,19 +122,19 @@ function updateBlinds(currentDealer) {
     if (currentDealer === 0) { // Player 1 is the dealer
         player1Blind.classList.add('big-blind');
         player1Blind.classList.remove('small-blind');
-        player1Blind.style.display = 'block';
+        player1Blind.style.display = 'inline-block';
 
         player2Blind.classList.add('small-blind');
         player2Blind.classList.remove('big-blind');
-        player2Blind.style.display = 'block';
+        player2Blind.style.display = 'inline-block';
     } else { // Player 2 is the dealer
         player1Blind.classList.add('small-blind');
         player1Blind.classList.remove('big-blind');
-        player1Blind.style.display = 'block';
+        player1Blind.style.display = 'inline-block';
 
         player2Blind.classList.add('big-blind');
         player2Blind.classList.remove('small-blind');
-        player2Blind.style.display = 'block';
+        player2Blind.style.display = 'inline-block';
     }
 }
 

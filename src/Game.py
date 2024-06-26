@@ -36,11 +36,16 @@ class PokerGame:
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
 
     def fold(self):
-        self.log.append(f"{self.players[0].name} folds.")
-        self.players[1].chips += self.pot
-        self.pot = 0
-        self.log.append(f"{self.players[1].name} wins the pot.")
-        self.reset_game()
+        print("fold")
+        print(self.winner_paid)
+        if self.winner_paid == False:
+            print("in here")
+            self.log.append(f"{self.players[0].name} folds.")
+            self.players[1].chips += self.pot
+            self.pot = 0
+            self.log.append(f"{self.players[1].name} wins the pot.")
+            self.reset_game()
+            self.winner_paid = True
         
     def get_game_state(self):
         def get_card_image_path(card):
@@ -63,7 +68,7 @@ class PokerGame:
             "pot": self.pot,
             "highest_bet": self.highest_bet,
             "log": ["Game state updated"],
-            "is_showdown": self.is_showdown,  # Add this flag to the response
+            "is_showdown": self.is_showdown,  
             "small_blind": self.small_blind,
             "big_blind": self.big_blind,
             "current_dealer": self.current_dealer
@@ -96,7 +101,6 @@ class PokerGame:
         for player in self.players:
             player.reset_hand()
         self.current_dealer = (self.current_dealer + 1) % 2 
-        self.collect_blinds()
         self.log = []
 
     def collect_blinds(self):
@@ -222,16 +226,11 @@ class PokerGame:
     def player_raise(self, player, raise_amount):
         raise_amount = player.raise_bet(raise_amount)
         self.pot += raise_amount
-        print(player.current_bet)
-        print("high")
-        print(self.highest_bet)
         self.highest_bet = player.current_bet
         return raise_amount
 
 
     def ai_call(self, ai_player):
-        print("current")
-        print(self.players[0].current_bet)
         call_amount = min(self.highest_bet, ai_player.chips)
         ai_player.current_bet = call_amount
         ai_player.chips -= call_amount
@@ -249,44 +248,10 @@ class PokerGame:
             self.showdown()
 
 def main():
-    # pygame.init()
-    # screen = pygame.display.set_mode((800, 600)) 
-    # pygame.display.set_caption('My Pygame Window')
-    
-    # running = True
-    # while running:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             running = False
-        
-    #     screen.fill((0, 128, 255)) 
-    #     pygame.display.flip()
-    
-    # pygame.quit()
-    # sys.exit()
     player1 = Player("Alice", 10000)
     player2 = Player("Bob", 10000)
     game = PokerGame([player1, player2])
     game.play_round()   
-
-    # Done Step 1: Shuffle deck (optional: blinds)
-    # Done Step 2: Deal cards
-    # Step 3: Collect bets
-    # Step 4: Show flop
-    # Step 5: Collect bets
-    # Step 6: Show turn
-    # Step 7: Collect bets
-    # Step 8: Show river
-    # Step 9: Collect bets
-    # Step 10: Showdown
-    # Step 11: Award chips
-    # Step 12: Repeat
-
-    # while isGame:
-    #     game = PokerGame([player1, player2])
-    #     game.play_round()
-    #     print(player1.hand)
-    #     print(player2.hand)
 
 if __name__ == "__main__":
     main()
