@@ -28,7 +28,7 @@ class PokerGame:
         self.river_dealt = False
         self.winner_paid = False
         self.is_showdown = False 
-        self.current_dealer = 0  
+        self.current_dealer = 1  
         self.small_blind = 50
         self.big_blind = 100
         self.log = []
@@ -36,8 +36,6 @@ class PokerGame:
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
 
     def fold(self):
-        print("fold")
-        print(self.winner_paid)
         if self.winner_paid == False:
             print("in here")
             self.log.append(f"{self.players[0].name} folds.")
@@ -105,10 +103,10 @@ class PokerGame:
 
     def collect_blinds(self):
         if self.current_dealer == 0:  # Player1 is the dealer
-            self.players[0].chips -= self.big_blind
             self.players[1].chips -= self.small_blind
-            self.players[0].current_bet = self.big_blind
+            self.players[0].chips -= self.big_blind
             self.players[1].current_bet = self.small_blind
+            self.players[0].current_bet = self.big_blind
         else:  # Player2 (AI) is the dealer
             self.players[0].chips -= self.small_blind
             self.players[1].chips -= self.big_blind
@@ -136,20 +134,18 @@ class PokerGame:
 
     def collect_bets(self, player_action, raise_amount=None):        
         if player_action == "check":
+            # Handle the case where preflop small blind matches the big blind
+            if not self.flop_dealt and self.players[0].current_bet == self.big_blind:
+                self.players[1].chips -= (self.big_blind - self.small_blind)
+                self.pot += (self.big_blind - self.small_blind)
+                self.players[1].current_bet = self.big_blind
             self.players[0].check()
             self.players[1].check()
             self.advance_game_stage()
         elif player_action == "raise" and raise_amount is not None:
-            # Case that AI would be put all in
-            if self.players[1].chips < int(raise_amount):
-                raise_amount = self.players[1].chips
-            else:
-                raise_amount = int(raise_amount)
-
+            raise_amount = int(raise_amount)
             self.player_raise(self.players[0], raise_amount)
             self.ai_call(self.players[1])
-
-        
         return self.get_game_state()
 
     def play_round(self):
