@@ -6,8 +6,7 @@ async function initializeGame() {
     try {
         let response = await eel.get_initial_state()();
         updateUI(response);
-        
-        // Enable or disable the "Deal Cards" button based on the game state
+        hideBlinds();
         if (response.player1.hand.length > 0) {
             disableButton("deal-cards-button");
         }
@@ -21,10 +20,11 @@ async function dealCards() {
     try {
         let response = await eel.deal_cards()();
         updateUI(response);
+        showBlinds();
         enableButton("check-button");
     } catch (error) {
         console.error(error);
-        enableButton("deal-cards-button"); // Re-enable in case of error
+        enableButton("deal-cards-button");
     }
 }
 
@@ -71,6 +71,7 @@ async function playNextRound() {
         try {
             let response = await eel.reset_game()();
             updateUI(response);
+            hideBlinds();
             disableButton("play-next-round-button");
             enableButton("deal-cards-button");
         } catch (error) {
@@ -83,6 +84,7 @@ async function handleFoldClick() {
     try {
         let response = await eel.fold()();
         updateUI(response);
+        hideBlinds();
         showMessage("You folded. AI wins the round.");
         enableButton("play-next-round-button");
     } catch (error) {
@@ -136,6 +138,21 @@ function updateBlinds(currentDealer) {
         player2Blind.classList.remove('small-blind');
         player2Blind.style.display = 'inline-block';
     }
+}
+
+function hideBlinds() {
+    const player1Blind = document.getElementById("player1-blind");
+    const player2Blind = document.getElementById("player2-blind");
+    player1Blind.style.display = 'none';
+    player2Blind.style.display = 'none';
+}
+
+function showBlinds() {
+    const player1Blind = document.getElementById("player1-blind");
+    const player2Blind = document.getElementById("player2-blind");
+
+    player1Blind.style.display = 'inline-block';
+    player2Blind.style.display = 'inline-block';
 }
 
 function updateHand(element, hand) {

@@ -98,7 +98,6 @@ class PokerGame:
         self.is_showdown = False
         for player in self.players:
             player.reset_hand()
-        self.current_dealer = (self.current_dealer + 1) % 2 
         self.log = []
 
     def collect_blinds(self):
@@ -116,6 +115,7 @@ class PokerGame:
         self.highest_bet = self.big_blind
 
     def deal_cards(self):
+        self.current_dealer = (self.current_dealer + 1) % 2 
         for player in self.players:
             player.setCards(self.deck.deal())
         for player in self.players:
@@ -135,12 +135,16 @@ class PokerGame:
     def collect_bets(self, player_action, raise_amount=None):        
         if player_action == "check":
             # Handle the case where preflop small blind matches the big blind
-            if not self.flop_dealt and self.players[0].current_bet == self.big_blind:
+            if not self.flop_dealt and self.players[0].current_bet == self.small_blind:
+                self.players[0].chips -= (self.big_blind - self.small_blind)
+                self.pot += (self.big_blind - self.small_blind)
+                self.players[0].current_bet = self.big_blind
+            
+            if not self.flop_dealt and self.players[1].current_bet == self.small_blind:
                 self.players[1].chips -= (self.big_blind - self.small_blind)
                 self.pot += (self.big_blind - self.small_blind)
                 self.players[1].current_bet = self.big_blind
-            self.players[0].check()
-            self.players[1].check()
+
             self.advance_game_stage()
         elif player_action == "raise" and raise_amount is not None:
             raise_amount = int(raise_amount)

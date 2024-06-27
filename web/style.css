@@ -100,20 +100,15 @@ h1 {
 }
 
 .blind-icon {
-    width: 30px;
-    height: 30px;
-    background-size: cover; /* Ensure the icons cover the entire element */
-    display: none; /* Initially hidden */
-    position: absolute; /* To position it relative to its container */
-    top: 0; /* Adjust as needed */
-    right: 0; /* Adjust as needed */
+    width: 33px;
+    height: 33px;
+    background-size: cover;
 }
 
-.blind-icon.big-blind {
-    background-image: url('avatars/big-blind.png');
-}
-
-.blind-icon.small-blind {
+.big-blind {
     background-image: url('avatars/small-blind.png');
 }
 
+.small-blind {
+    background-image: url('avatars/big-blind.png');
+}
