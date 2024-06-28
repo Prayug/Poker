@@ -16,6 +16,10 @@
                 <div class="blind-icon" id="player1-blind" style="margin-left: 10px"></div>
                 <p style="padding-left: 10px" style="padding-right: 0px">Chips: <span id="player1-chips"></span></p>
                 <div id="player1-hand" class="hand"></div>
+                <div id="player1-best-hand" style="display: none;">
+                    <h3>Best Hand: <span id="best-hand-type"></span></h3>
+                    <div id="best-hand-cards" class="hand"></div>
+                </div>
             </div>
             <div id="player2" class="player">
                 <img src="avatars/player2.png" class="avatar" alt="Player 2 Avatar">
@@ -23,6 +27,7 @@
                 <div class="blind-icon" id="player2-blind" style="margin-left: 10px" ></div>
                 <p style="padding-left: 10px" style="padding-right: 0px">Chips: <span id="player2-chips"></span></p>
                 <div id="player2-hand" class="hand"></div>
+                <p id="player2-best-hand" style="display: none;"></p> <!-- Add this line -->
             </div>
         </div>
         <div id="community-cards">

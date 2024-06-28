@@ -26,6 +26,14 @@ def deal_cards():
     return game.get_game_state()
 
 @eel.expose
+def get_best_hand():
+    best_hand, hand_type = game.get_best_hand(player1)
+    return {
+        "best_hand": best_hand,
+        "hand_type": hand_type
+    }
+
+@eel.expose
 def collect_bets(action, raise_amount=None):
     if action == "check":
         game.collect_bets(action)

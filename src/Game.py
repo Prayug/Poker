@@ -32,12 +32,12 @@ class PokerGame:
         self.small_blind = 50
         self.big_blind = 100
         self.log = []
+        self.all_in_announcement = ""
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
 
     def fold(self):
         if self.winner_paid == False:
-            print("in here")
             self.log.append(f"{self.players[0].name} folds.")
             self.players[1].chips += self.pot
             self.pot = 0
@@ -50,12 +50,15 @@ class PokerGame:
             rank = card.rank.value
             suit = card.suit.value
             return f"cards/{rank}{suit}.png"
+        
+        player1_best_hand, player1_hand_type = self.get_best_hand(self.players[0])
 
         return {
             "player1": {
                 "name": self.players[0].name,
                 "chips": self.players[0].chips,
-                "hand": [get_card_image_path(card) for card in self.players[0].hand]
+                "hand": [get_card_image_path(card) for card in self.players[0].hand],
+                "best_hand": player1_hand_type  # Add this line
             },
             "player2": {
                 "name": self.players[1].name,
@@ -71,6 +74,13 @@ class PokerGame:
             "big_blind": self.big_blind,
             "current_dealer": self.current_dealer
         }
+
+
+    def get_best_hand(self, player):
+        cards = player.hand + self.community_cards
+        best_hand, hand_type = self.evaluate_hand(cards)
+        return best_hand, hand_type
+    
 
     def advance_game_stage(self):
         if not self.flop_dealt:
@@ -194,6 +204,7 @@ class PokerGame:
         return best_rank, best_hand_type
 
     def rank_hand(self, hand: List[Card]) -> Tuple[Tuple[int, List[int]], str]:
+        
         values = sorted([card.rank.value for card in hand], reverse=True)
         suits = [card.suit for card in hand]
         
