@@ -1,6 +1,6 @@
 from Player import Player
 
-class AIPlayer(Player):
+class AIPlayerLevel1(Player):
     def __init__(self, name, chips):
         super().__init__(name, chips)
 

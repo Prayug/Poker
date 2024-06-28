@@ -1,12 +1,12 @@
 import eel
 from Player import Player
 from Game import PokerGame
-from AI import AIPlayer
+from AI_levels.AILevel1 import AIPlayerLevel1
 
 eel.init('web')
 
 player1 = Player("Player", 10000)
-player2 = AIPlayer("AI", 10000)  # AI player
+player2 = AIPlayerLevel1("AI", 10000)  # AI player
 game = PokerGame([player1, player2])
 cards_dealt = False
 preflop = True

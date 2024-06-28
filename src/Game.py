@@ -10,7 +10,7 @@ import pygame
 from typing import List, Tuple
 from Deck import Deck  
 from Card import Card, Suit, Value 
-from AI import AIPlayer
+from AI_levels.AILevel1 import AIPlayerLevel1
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -34,7 +34,7 @@ class PokerGame:
         self.log = []
         self.all_in_announcement = ""
         self.reset_game()
-        self.ai_player = next((p for p in players if isinstance(p, AIPlayer)), None)
+        self.ai_player = next((p for p in players if isinstance(p, AIPlayerLevel1)), None)
 
     def fold(self):
         if self.winner_paid == False:
