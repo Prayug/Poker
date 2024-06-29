@@ -11,6 +11,7 @@ from typing import List, Tuple
 from Deck import Deck  
 from Card import Card, Suit, Value 
 from AI_levels.AILevel1 import AIPlayerLevel1
+from AI_levels.AILevel2 import AIPlayerLevel2
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -34,7 +35,7 @@ class PokerGame:
         self.log = []
         self.all_in_announcement = ""
         self.reset_game()
-        self.ai_player = next((p for p in players if isinstance(p, AIPlayerLevel1)), None)
+        self.ai_player = next((p for p in players if isinstance(p, AIPlayerLevel2)), None)
 
     def fold(self):
         if self.winner_paid == False:
@@ -159,7 +160,19 @@ class PokerGame:
         elif player_action == "raise" and raise_amount is not None:
             raise_amount = int(raise_amount)
             self.player_raise(self.players[0], raise_amount)
-            self.ai_call(self.players[1])
+            
+            if self.players[1].make_decision(self.highest_bet) == "Call":
+                print("AI Call")
+                self.ai_call(self.players[1])
+            else:
+                print("in here")
+                self.players[1].fold_hand()
+                self.players[0].chips += self.pot
+                self.pot = 0
+                self.log.append(f"{self.players[0].name} wins the pot.")
+                self.reset_game()
+                self.winner_paid = True
+            
         return self.get_game_state()
 
     def play_round(self):
@@ -168,25 +181,18 @@ class PokerGame:
     
     def showdown(self):
         # Simple winner determination placeholder
-        print("\nShowdown!")
         self.is_showdown = True  # Set the flag to True
 
         player1_best_hand, player1_hand_type = self.evaluate_hand(self.players[0].hand + self.community_cards)
         player2_best_hand, player2_hand_type = self.evaluate_hand(self.players[1].hand + self.community_cards)
-
-        print(f"\n{self.players[0].name}'s best hand: {player1_best_hand} ({player1_hand_type})")
-        print(f"{self.players[1].name}'s best hand: {player2_best_hand} ({player2_hand_type})")
-
+        
         if player1_best_hand > player2_best_hand:
-            print(f"\n{self.players[0].name} wins the pot of {self.pot} chips!\n")
             self.players[0].chips += self.pot
             self.winner_paid = True
         elif player2_best_hand > player1_best_hand:
-            print(f"\n{self.players[1].name} wins the pot of {self.pot} chips!\n")
             self.players[1].chips += self.pot
             self.winner_paid = True
         else:
-            print("\nIt's a tie!")
             split_pot = self.pot // 2
             self.players[0].chips += split_pot
             self.players[1].chips += split_pot
@@ -242,11 +248,14 @@ class PokerGame:
 
 
     def ai_call(self, ai_player):
-        call_amount = min(self.highest_bet, ai_player.chips)
-        ai_player.current_bet = call_amount
-        ai_player.chips -= call_amount
-        self.pot += call_amount
-        return call_amount
+        if isinstance(ai_player, AIPlayerLevel1):
+            call_amount = min(self.highest_bet, ai_player.chips)
+            ai_player.current_bet = call_amount
+            ai_player.chips -= call_amount
+            self.pot += call_amount
+            return call_amount
+        elif isinstance(ai_player, AIPlayerLevel2):
+            return ai_player.make_decision(self.highest_bet)
 
     def both_check(self):
         if not self.flop_dealt:
