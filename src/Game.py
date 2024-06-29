@@ -59,12 +59,14 @@ class PokerGame:
                 "name": self.players[0].name,
                 "chips": self.players[0].chips,
                 "hand": [get_card_image_path(card) for card in self.players[0].hand],
-                "best_hand": player1_hand_type  # Add this line
+                "best_hand": player1_hand_type,
+                "isFold": self.players[0].fold
             },
             "player2": {
                 "name": self.players[1].name,
                 "chips": self.players[1].chips,
-                "hand": [get_card_image_path(card) for card in self.players[1].hand] if self.is_showdown else ["cards/back.png" for card in self.players[1].hand]
+                "hand": [get_card_image_path(card) for card in self.players[1].hand] if self.is_showdown or self.players[1].fold else ["cards/back.png" for card in self.players[1].hand],
+                "isFold": self.players[1].fold
             },
             "community_cards": [get_card_image_path(card) for card in self.community_cards],
             "pot": self.pot,
@@ -157,6 +159,7 @@ class PokerGame:
                 self.players[1].current_bet = self.big_blind
 
             self.advance_game_stage()
+
         elif player_action == "raise" and raise_amount is not None:
             raise_amount = int(raise_amount)
             self.player_raise(self.players[0], raise_amount)
@@ -170,7 +173,6 @@ class PokerGame:
                 self.players[0].chips += self.pot
                 self.pot = 0
                 self.log.append(f"{self.players[0].name} wins the pot.")
-                self.reset_game()
                 self.winner_paid = True
             
         return self.get_game_state()
@@ -248,6 +250,7 @@ class PokerGame:
 
 
     def ai_call(self, ai_player):
+        print("retard")
         if isinstance(ai_player, AIPlayerLevel1):
             call_amount = min(self.highest_bet, ai_player.chips)
             ai_player.current_bet = call_amount

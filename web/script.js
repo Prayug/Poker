@@ -43,8 +43,14 @@ async function collectBets(action, raise_amount = null) {
             updateBestHand(response);
             updateUI(response);
             showMessage(`You raised ${raise_amount}. AI calls.`);
-            response = await eel.collect_bets("check")();
-            updateUI(response);
+            
+            if(response.player2.isFold == false){
+                response = await eel.collect_bets("check")();
+                updateUI(response);
+            } else {
+                showMessage("AI folded. You win the round.");
+                enableButton("play-next-round-button");
+            }
         } else if (action === "check") {
             response = await eel.collect_bets(action)();
             updateBestHand(response);
