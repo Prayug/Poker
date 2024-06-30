@@ -52,6 +52,7 @@ class PokerGame:
             suit = card.suit.value
             return f"cards/{rank}{suit}.png"
         
+        print(self.get_best_hand(self.players[0]))
         player1_best_hand, player1_hand_type = self.get_best_hand(self.players[0])
 
         return {
@@ -250,7 +251,6 @@ class PokerGame:
 
 
     def ai_call(self, ai_player):
-        print("retard")
         if isinstance(ai_player, AIPlayerLevel1):
             call_amount = min(self.highest_bet, ai_player.chips)
             ai_player.current_bet = call_amount
@@ -258,7 +258,15 @@ class PokerGame:
             self.pot += call_amount
             return call_amount
         elif isinstance(ai_player, AIPlayerLevel2):
-            return ai_player.make_decision(self.highest_bet)
+            print("level 2")
+            if ai_player.make_decision(self.highest_bet) == "Call":
+                call_amount = min(self.highest_bet, ai_player.chips)
+                ai_player.current_bet = call_amount
+                ai_player.chips -= call_amount
+                self.pot += call_amount
+                return call_amount
+            else:
+                self.players[1].fold_hand()
 
     def both_check(self):
         if not self.flop_dealt:

@@ -134,6 +134,11 @@ function updateUI(response) {
     if (response.is_showdown) {
         enableButton("play-next-round-button");
     }
+    if (response.player2.isFold) {
+        disableButton("check-button");
+        disableButton("raise-button");
+        disableButton("fold-button");    
+    }
 }
 
 
