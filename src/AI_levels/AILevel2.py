@@ -54,4 +54,4 @@ class AIPlayerLevel2(Player):
         call_threshold = 20  # This threshold can be adjusted based on desired aggressiveness
         if hand_strength >= call_threshold:
             return "Call"
-        return ""  # AI folds if the hand strength is below the threshold
+        return "Fold"  # AI folds if the hand strength is below the threshold
