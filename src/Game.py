@@ -39,6 +39,7 @@ class PokerGame:
         self.all_in_announcement = ""
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayerLevel2)), None)
+        self.create_hands_table()
 
     def create_hands_table(self):
         conn = sqlite3.connect('poker_odds.db')
@@ -65,41 +66,19 @@ class PokerGame:
                         self.reset_game()
                         self.deal_specific_cards(card1, card2)
                         self.deal_remaining_cards()
-                        if self.determine_winner() == self.players[0]:
-                            wins += 1
-                    print(self.player[0].hand)
-                    print(wins)
-                    win_rate = wins / num_simulations
-                    cursor.execute(
-                        "INSERT INTO hands (card1, card2, win_rate) VALUES (?, ?, ?)",
-                        (f"{card1.rank.name} of {card1.suit.name}",
-                         f"{card2.rank.name} of {card2.suit.name}",
-                         win_rate))
-        conn.commit()
-        conn.close()
-
-    def simulate_preflop_odds(self, num_simulations=10000):
-        conn = sqlite3.connect('poker_odds.db')
-        cursor = conn.cursor()
-
-        for card1 in self.deck.cards:
-            for card2 in self.deck.cards:
-                if card1 != card2:
-                    wins = 0
-                    for _ in range(num_simulations):
-                        self.reset_game()
-                        self.deal_specific_cards(card1, card2)
-                        self.deal_remaining_cards()
                         if self.showdown() == self.players[0]:
                             wins += 1
                     print(self.players[0].hand)
                     print(wins)
-                    win_rate = wins / num_simulations
+                    win_rate = (wins / num_simulations) * 100
                     cursor.execute(
                         "INSERT INTO hands (card1, card2, win_rate) VALUES (?, ?, ?)",
                         (f"{card1.rank.name} of {card1.suit.name}",
                          f"{card2.rank.name} of {card2.suit.name}",
                          win_rate))
+                    break
+            break
+        print("he")
         conn.commit()
         conn.close()
 
