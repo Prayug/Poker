@@ -12,6 +12,9 @@ from Deck import Deck
 from Card import Card, Suit, Value 
 from AI_levels.AILevel1 import AIPlayerLevel1
 from AI_levels.AILevel2 import AIPlayerLevel2
+import sqlite3
+import random
+
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -36,6 +39,25 @@ class PokerGame:
         self.all_in_announcement = ""
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayerLevel2)), None)
+
+    def simulate_preflop_odds(self, num_simulations=10000):
+        conn = sqlite3.connect('poker_odds.db')
+        cursor = conn.cursor()
+
+        for card1 in self.deck.values:
+            for card2 in self.deck.values:
+                if card1 != card2:
+                    wins = 0
+                    for _ in range(num_simulations):
+                        self.reset_game()
+                        self.deal_specific_cards(card1, card2)
+                        self.deal_remaining_cards()
+                        if self.determine_winner() == self.players[0]:
+                            wins += 1
+                    win_rate = wins / num_simulations
+                    cursor.execute("INSERT INTO hands (card1, card2, win_rate) VALUES (?, ?, ?)", (card1, card2, win_rate))
+        conn.commit()
+        conn.close()
 
     def fold(self):
         if self.winner_paid == False:
