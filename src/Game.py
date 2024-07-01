@@ -40,12 +40,25 @@ class PokerGame:
         self.reset_game()
         self.ai_player = next((p for p in players if isinstance(p, AIPlayerLevel2)), None)
 
+    def create_hands_table(self):
+        conn = sqlite3.connect('poker_odds.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS hands (
+                card1 TEXT,
+                card2 TEXT,
+                win_rate REAL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+
     def simulate_preflop_odds(self, num_simulations=10000):
         conn = sqlite3.connect('poker_odds.db')
         cursor = conn.cursor()
 
-        for card1 in self.deck.values:
-            for card2 in self.deck.values:
+        for card1 in self.deck.cards:
+            for card2 in self.deck.cards:
                 if card1 != card2:
                     wins = 0
                     for _ in range(num_simulations):
@@ -54,10 +67,53 @@ class PokerGame:
                         self.deal_remaining_cards()
                         if self.determine_winner() == self.players[0]:
                             wins += 1
+                    print(self.player[0].hand)
+                    print(wins)
                     win_rate = wins / num_simulations
-                    cursor.execute("INSERT INTO hands (card1, card2, win_rate) VALUES (?, ?, ?)", (card1, card2, win_rate))
+                    cursor.execute(
+                        "INSERT INTO hands (card1, card2, win_rate) VALUES (?, ?, ?)",
+                        (f"{card1.rank.name} of {card1.suit.name}",
+                         f"{card2.rank.name} of {card2.suit.name}",
+                         win_rate))
         conn.commit()
         conn.close()
+
+    def simulate_preflop_odds(self, num_simulations=10000):
+        conn = sqlite3.connect('poker_odds.db')
+        cursor = conn.cursor()
+
+        for card1 in self.deck.cards:
+            for card2 in self.deck.cards:
+                if card1 != card2:
+                    wins = 0
+                    for _ in range(num_simulations):
+                        self.reset_game()
+                        self.deal_specific_cards(card1, card2)
+                        self.deal_remaining_cards()
+                        if self.showdown() == self.players[0]:
+                            wins += 1
+                    print(self.players[0].hand)
+                    print(wins)
+                    win_rate = wins / num_simulations
+                    cursor.execute(
+                        "INSERT INTO hands (card1, card2, win_rate) VALUES (?, ?, ?)",
+                        (f"{card1.rank.name} of {card1.suit.name}",
+                         f"{card2.rank.name} of {card2.suit.name}",
+                         win_rate))
+        conn.commit()
+        conn.close()
+
+    def deal_specific_cards(self, card1, card2):
+        self.players[0].hand = [card1, card2]
+        self.deck.remove(card1)
+        self.deck.remove(card2)
+        self.players[1].hand = [self.deck.deal(), self.deck.deal()]
+
+    def deal_remaining_cards(self):
+        self.deal_community_cards(3)
+        self.deal_community_cards(1)
+        self.deal_community_cards(1)
+
 
     def fold(self):
         if self.winner_paid == False:
@@ -214,14 +270,17 @@ class PokerGame:
         if player1_best_hand > player2_best_hand:
             self.players[0].chips += self.pot
             self.winner_paid = True
+            return self.players[0]
         elif player2_best_hand > player1_best_hand:
             self.players[1].chips += self.pot
             self.winner_paid = True
+            return self.players[1]
         else:
             split_pot = self.pot // 2
             self.players[0].chips += split_pot
             self.players[1].chips += split_pot
             self.winner_paid = True
+            return 0
 
     def evaluate_hand(self, cards: List[Card]) -> Tuple[Tuple[int, List[int]], str]:
         best_rank = (-1, [])
@@ -300,11 +359,25 @@ class PokerGame:
         else:
             self.showdown()
 
+    def get_preflop_odds(self, card1, card2):
+        conn = sqlite3.connect('poker_odds.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT win_rate FROM hands WHERE card1 = ? AND card2 = ?", (card1, card2))
+        win_rate = cursor.fetchone()
+        conn.close()
+        return win_rate[0] if win_rate else 0
+
+    def state_of_game(self):
+        game_state = super().get_game_state()
+        card1, card2 = self.players[0].hand
+        game_state["player1"]["preflop_odds"] = self.get_preflop_odds(card1.rank.value, card2.rank.value)
+        return game_state
+
 def main():
     player1 = Player("Alice", 10000)
     player2 = Player("Bob", 10000)
     game = PokerGame([player1, player2])
-    game.play_round()   
+    game.simulate_preflop_odds()
 
 if __name__ == "__main__":
     main()

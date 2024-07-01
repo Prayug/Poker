@@ -8,3 +8,10 @@ class Deck:
 
     def deal(self):
         return self.cards.pop()
+
+    def reset(self):
+        self.__init__()
+
+    def remove(self, card):
+        self.cards.remove(card)
+    

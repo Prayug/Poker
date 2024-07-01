@@ -1,0 +1,6 @@
+CREATE TABLE hands (
+    hand_id INTEGER PRIMARY KEY,
+    card1 TEXT,
+    card2 TEXT,
+    win_rate REAL
+);
